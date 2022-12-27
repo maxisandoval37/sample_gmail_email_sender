@@ -5,33 +5,39 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 import javax.mail.*;
 import javax.mail.internet.*;
+
+import java.io.FileInputStream;
+import java.io.InputStream;
 import java.util.*;
 
 @SpringBootApplication
 public class DemoApplication {
+	
+	private static Properties getProperties(String propertiesSrc){
+		Properties prop1 = new Properties();
+
+		try (InputStream input = new FileInputStream(propertiesSrc)) {
+            prop1.load(input);
+        } catch (Exception ex) {
+			System.err.println("Fail to load email properties");
+        }
+
+		return prop1;
+	}
 
 	public static void sendEmail(){
-		final String username = "your_email@gmail.com";
-		final String password = "your_secret_token";
+
+		Properties prop = getProperties("src/main/resources/email.properties");
 
 		String from = "from_email@gmail.com";
 		String to = "to_email@gmail.com";
 		String subject = "Email subject";
-
-		Properties prop = new Properties();
-		prop.put("mail.smtp.host", "smtp.gmail.com");
-		prop.put("mail.smtp.port", "587");
-		prop.put("mail.smtp.auth", "true");
-		prop.put("mail.smtp.starttls.enable", "true");
-
-		prop.put("mail.debug", "true");
-		prop.put("mail.smtp.ssl.protocols", "TLSv1.2");
 	
 		Session session = Session.getInstance(prop,
 				new javax.mail.Authenticator() {
 					@Override
 					protected PasswordAuthentication getPasswordAuthentication() {
-						return new PasswordAuthentication(username, password);
+						return new PasswordAuthentication(prop.getProperty("mail.username"), prop.getProperty("mail.password"));
 					}
 				});
 
@@ -53,7 +59,7 @@ public class DemoApplication {
 	}
 
 	public static void main(String[] args) {
-		sendEmail();
 		SpringApplication.run(DemoApplication.class, args);
+		sendEmail();
 	}
 }
