@@ -27,14 +27,19 @@ public class EmailEngine {
 			Message message = new MimeMessage(session);
 
 			message.setFrom(new InternetAddress(from));
-			message.setRecipients(Message.RecipientType.TO, InternetAddress.parse(to));//RecipientType.TO / CC / BCC
+			message.addRecipients(Message.RecipientType.TO, InternetAddress.parse(to));//RecipientType.TO / CC / BCC
+
+			/* 
+				NOTE: To send to more than one email duplicate: "message.addRecipients (...)"
+			*/
+
 			message.setSubject(subject);
 			message.setContent("<h1>This is HTML message</h1>", "text/html;charset=UTF-8"); //to send HTML Content
 			//message.setText("test text :)"); //to send plain text
 
 			Transport.send(message);
 
-			System.out.println("Email sent successfully!");
+			System.out.println("Email sent successfully!");//TODO: replace with logger
 		} catch (MessagingException e) {
 			e.printStackTrace();
 		}
